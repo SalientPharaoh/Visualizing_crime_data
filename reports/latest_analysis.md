@@ -1,10 +1,10 @@
 
-Loaded 220 incidents
-Date range: 2024-01-01 00:00:00 to 2024-12-07 10:50:59
+Loaded 228 incidents
+Date range: 2024-01-01 00:00:00 to 2024-12-07 12:00:00
 
 Incidents by source:
 source
-newsapi       120
+newsapi       128
 chicago_pd    100
 Name: count, dtype: int64
 
@@ -19,31 +19,28 @@ y Distribution](images/hourly_distribution.svg)
 
 ## Recent Incidents
 
-### HOMICIDE on 2024-12-07 10:50
-- Location: NPR
-- Description: The public is racing to find evidence that might lead to the gunman who killed health insurance CEO Brian Thompson. When does crowdsourcing detective work help police, and when can it cause harm?
+### HOMICIDE on 2024-12-07 12:00
+- Location: CBC News
+- Description: A man living in Winnipeg who was extradited to New Jersey last week after being linked to a decades-old cold case homicide has a long history of violence on both sides of the border.
 
 
-### HOMICIDE on 2024-12-07 10:36
-- Location: BBC News
-- Description: Haseeb Bhatti was found in Dagenham with fatal stabbing injuries in the early hours of 20 April.
+### HOMICIDE on 2024-12-07 11:55
+- Location: Nakedcapitalism.com
+- Description: Our vocal daily links: US obesity rising, Lond Covid, Romania coup, Syria jihadist advance freakout, Meta hearts fossil fuels, China manufacturing, SKorera impachment checked, moar Israel genocide, SSN sales curbed? UnitedHealth murder celebrations continue, …
 
 
-### HOMICIDE on 2024-12-07 10:26
-- Location: Newsweek
-- Description: The gunman remains at large four days after the CEO of UnitedHealthcare was shot dead in New York City.
+### OTHER on 2024-12-07 11:30
+- Location: Wired
+- Description: Plus: Russian spies keep hijacking other hackers’ infrastructure, Hydra dark web market admin gets life sentence in Russia, and more of the week’s top security news.
 
 
-### OTHER on 2024-12-07 10:20
-- Location: Jewishnews.co.uk
-- Description: Ten others have appeared in court and are due to stand trial next year charged over the same incident.
+### OTHER on 2024-12-07 11:25
+- Location: Fark.com
+- Description: Police ask Internet sleuths to help identify assassin of health insurance CEO - met with response of "GET FARKED" Strongly worded letter to follow
 
 
-### HOMICIDE on 2024-12-07 10:17
-- Location: Biztoc.com
-- Description: Police inspect the scene where insurance executive Brian Thompson was killed in Manhattan.
-Spencer Platt/Getty Images
-Executive security is getting a closer look after the fatal shooting of UnitedHealthcare's CEO. 
-Private security companies say they've gotte…
+### OTHER on 2024-12-07 11:00
+- Location: The Punch
+- Description: The Anambra State Police Command said it apprehended one suspected cultist, who together with his gang members, were on their way to commit havoc in the Nibo community, Awka South Local Government Area of the state. In a press statement on Saturday, the comma…
 
-Analysis generated at: Sun Dec  8 10:55:44 UTC 2024
+Analysis generated at: Sun Dec  8 12:23:40 UTC 2024
