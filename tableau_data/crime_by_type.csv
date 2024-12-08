@@ -1,0 +1,16 @@
+crime_type,source,incident_count,month_year
+ASSAULT,chicago_pd,6,2024-01
+ASSAULT,newsapi,1,2024-12
+BATTERY,chicago_pd,31,2024-01
+BURGLARY,chicago_pd,2,2024-01
+CRIMINAL DAMAGE,chicago_pd,31,2024-01
+DECEPTIVE PRACTICE,chicago_pd,2,2024-01
+HOMICIDE,newsapi,1,2024-12
+MOTOR VEHICLE THEFT,chicago_pd,1,2024-01
+NARCOTICS,chicago_pd,1,2024-01
+OTHER,newsapi,1,2024-12
+OTHER OFFENSE,chicago_pd,7,2024-01
+SEX OFFENSE,chicago_pd,1,2024-01
+THEFT,chicago_pd,7,2024-01
+WEAPONS VIOLATION,chicago_pd,11,2024-01
+news_report,newsapi,100,2024-12
