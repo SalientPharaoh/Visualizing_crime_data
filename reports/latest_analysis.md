@@ -1,7 +1,3 @@
-# Crime Data Analysis
-Last updated: Sun Dec  8 08:27:18 UTC 2024
-
-## Latest Analysis
 Loading data...
 
 Sample of raw dates:
