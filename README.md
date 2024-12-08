@@ -1,14 +1,14 @@
 # Crime Data Analysis
-Last updated: Sun Dec  8 09:03:54 UTC 2024
+Last updated: Sun Dec  8 10:55:44 UTC 2024
 
 ## Latest Analysis
 
-Loaded 205 incidents
-Date range: 2024-01-01 00:00:00 to 2024-12-07 09:02:56
+Loaded 220 incidents
+Date range: 2024-01-01 00:00:00 to 2024-12-07 10:50:59
 
 Incidents by source:
 source
-newsapi       105
+newsapi       120
 chicago_pd    100
 Name: count, dtype: int64
 
@@ -23,28 +23,31 @@ y Distribution](images/hourly_distribution.svg)
 
 ## Recent Incidents
 
-### OTHER on 2024-12-07 09:02
-- Location: Las Cruces Sun-News
-- Description: New Mexico State has 13 players in its 2025 football recruiting class so far. Here's who could make an instant impact.
+### HOMICIDE on 2024-12-07 10:50
+- Location: NPR
+- Description: The public is racing to find evidence that might lead to the gunman who killed health insurance CEO Brian Thompson. When does crowdsourcing detective work help police, and when can it cause harm?
 
 
-### HOMICIDE on 2024-12-07 09:00
-- Location: Fox News
-- Description: The defense team for a teen boy, charged with killing all but one member of his family in their Washington state lakefront home in October, denied accusations of crime scene tampering.
+### HOMICIDE on 2024-12-07 10:36
+- Location: BBC News
+- Description: Haseeb Bhatti was found in Dagenham with fatal stabbing injuries in the early hours of 20 April.
 
 
-### ASSAULT on 2024-12-07 08:55
-- Location: NDTV News
-- Description: A string of rape and assault allegations against the son of Norway&#039;s future queen have plunged the royal family into its &quot;biggest scandal&quot; ever, wrapping up an &quot;annus horribilis&quot; for the monarchy.
+### HOMICIDE on 2024-12-07 10:26
+- Location: Newsweek
+- Description: The gunman remains at large four days after the CEO of UnitedHealthcare was shot dead in New York City.
 
 
-### OTHER on 2024-12-07 08:53
-- Location: Securityaffairs.com
-- Description: Russia’s FSB used spyware against a Russian programmer after detaining him for allegedly donating to Ukraine earlier this year. The Federal Security Service (FSB) used spyware to monitor a Russian programmer, Kirill Parubets, after he was detained earlier thi…
+### OTHER on 2024-12-07 10:20
+- Location: Jewishnews.co.uk
+- Description: Ten others have appeared in court and are due to stand trial next year charged over the same incident.
 
 
-### HOMICIDE on 2024-12-07 08:47
-- Location: ABC News
-- Description: The manhunt for the suspect who killed UnitedHealthcare CEO Brian Thompson has now entered its fourth day as authorities learn more about his movements before the attack.
+### HOMICIDE on 2024-12-07 10:17
+- Location: Biztoc.com
+- Description: Police inspect the scene where insurance executive Brian Thompson was killed in Manhattan.
+Spencer Platt/Getty Images
+Executive security is getting a closer look after the fatal shooting of UnitedHealthcare's CEO. 
+Private security companies say they've gotte…
 
-Analysis generated at: Sun Dec  8 09:03:54 UTC 2024
+Analysis generated at: Sun Dec  8 10:55:44 UTC 2024
