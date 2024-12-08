@@ -1,13 +1,15 @@
-# Crime Data Analysis Report
-Generated at: 2024-12-08 14:30:05 UTC
 
-## Summary Statistics
-- Total Incidents: 203
-- Date Range: 2024-01-01 00:00 to 2024-12-07 08:55
-- Number of Sources: 2
+Loaded 205 incidents
+Date range: 2024-01-01 00:00:00 to 2024-12-07 09:02:56
 
-## Time Analysis
-![Hourly Distribution](images/hourly_distribution.svg)
+Incidents by source:
+source
+newsapi       105
+chicago_pd    100
+Name: count, dtype: int64
+
+Report saved to reports/latest_analysis.md
+y Distribution](images/hourly_distribution.svg)
 
 ## Source Distribution
 ![Source Distribution](images/source_distribution.svg)
@@ -16,6 +18,16 @@ Generated at: 2024-12-08 14:30:05 UTC
 ![Crime Types](images/crime_types.svg)
 
 ## Recent Incidents
+
+### OTHER on 2024-12-07 09:02
+- Location: Las Cruces Sun-News
+- Description: New Mexico State has 13 players in its 2025 football recruiting class so far. Here's who could make an instant impact.
+
+
+### HOMICIDE on 2024-12-07 09:00
+- Location: Fox News
+- Description: The defense team for a teen boy, charged with killing all but one member of his family in their Washington state lakefront home in October, denied accusations of crime scene tampering.
+
 
 ### ASSAULT on 2024-12-07 08:55
 - Location: NDTV News
@@ -31,12 +43,4 @@ Generated at: 2024-12-08 14:30:05 UTC
 - Location: ABC News
 - Description: The manhunt for the suspect who killed UnitedHealthcare CEO Brian Thompson has now entered its fourth day as authorities learn more about his movements before the attack.
 
-
-### news_report on 2024-12-07 08:07
-- Location: NDTV News
-- Description: A 22-year-old man was arrested for allegedly killing his mother after she refused to allow him to marry the woman of his choice and threatened to not give him the property in Delhi's Khayala area.
-
-
-### news_report on 2024-12-07 08:00
-- Location: WSB Atlanta
-- Description: During the course of their investigation, police learned the man was a victim of an armed robbery.
+Analysis generated at: Sun Dec  8 09:03:54 UTC 2024
