@@ -1,0 +1,96 @@
+Details of the fields:
+
+POPESTIMATE: the total population in the county
+
+POPEST_MALE: the total male population in the county
+
+POPEST_FEM: the total female population in the county
+
+UNDERX_TOT: the total population that is younger than X years old
+
+UNDERX_MALE: the male population that is younger than X years old
+
+UNDERX_FEM: the female population that is younger than X years old
+
+AGEXY_TOT: the total population whose age lies between X and Y, inclusive
+
+AGEXY_MALE: the male population whose age lies between X and Y, inclusive
+
+AGEXY_FEM: the female population whose age lies between X and Y, inclusive
+
+AGEXPLUS_TOT: the total population that is older than X years old.
+
+AGEXPLUS_MALE: the male population that is older than X years old.
+
+AGEXPLUS_FEM: the female population that is older than X years old.
+
+MEDIAN_AGE_TOT: the median age of the county population
+
+MEDIAN_AGE_MALE: the median age of the male population
+
+MEDIAN_AGE_FEM: the median age of the female population
+
+PerCapitalInc: per capita income by county
+
+PovertyAllAgesPct: The percentage of population in poverty.
+
+Immigrant_Rate_2000_2010: Average immigration rate from 2000 to 2010
+
+Ed1LessThanHSPct: the percentage of population with education less than high school.
+
+Ed3SomeCollegePct: the percentage of population whose highest level of education is college
+
+Ed5CollegePlusPct: the percentage of population who received education beyong college.
+
+OwnHomePct: the percentage of population who own at least one house
+
+NumUnemployed: the percentage of unemployed population
+
+Housing_Units: the number of avaliable housings for living.
+
+Tier_1, Tier_2, Tier_3, Tier_4:
+
+Tier_1: Number of household with a download speed of at least 200 Kbps
+Tier_2: Number of household with a download speed of at least 10 Mbps
+Tier_3: Number of household with a download speed of at least 25 Mbps
+Tier_4: Number of household with a download speed of at least 100 Mbps
+
+Code Connections per 1,000 Housing Units
+
+0 0
+
+1 0 < X <= 200
+
+2 200 < X <= 400
+
+3 400 < X <= 600
+
+4 600 < X <= 800
+
+5 800 < X
+
+male_officer: the number of male police officers in the county
+
+femlae_officer: the number of female police officers in the county
+
+Republican: the percentage of population supporting Republican
+
+Democrat: the percentage of population supporting Democrat
+
+Diversity-Index: the diversity index calculated by the simpson's diversity index. It represents the probability that two randomly selected people are from difference race (ecological entropy).
+
+Black or African American alone percentage: percentage of African American
+
+American Indian and Alaska Native alone percentage: percentage of American Indian and Alaska Native
+
+Asian alone percentage: percentage of Asian
+
+Native Hawaiian and Other Pacific Islander alone percentage: percentage of Native Hawaiian and Other Pacific Islander
+
+Two or More Races percentage: percentage of people identified with more than one race
+
+Hispanic or Latino percentage: percenage of Hispanic or Latino
+
+White alone percentage: percentage of White
+
+Violent crime: number of violent crimes, per 100,000 population
