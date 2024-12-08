@@ -15,7 +15,8 @@ class CrimeAnalyzer:
 
     def setup_style(self):
         """Set up plotting style"""
-        plt.style.use('seaborn-v0_8')  # Updated style name
+        plt.style.use('seaborn')  # Use default seaborn style
+        sns.set_theme()  # Use seaborn's default theme
         sns.set_palette("husl")
         
     async def load_data(self, days_back=None):

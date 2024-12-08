@@ -3,7 +3,7 @@ name: Crime Data Pipeline
 
 on:
   schedule:
-    - cron: '*/5 * * * *'  # Run every 5 minutes
+    - cron: '*/15 * * * *'  # Run every 5 minutes
   workflow_dispatch:
 
 permissions:
@@ -39,8 +39,16 @@ jobs:
       with:
         python-version: '3.8'
 
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y python3-dev libpq-dev
+        sudo apt-get install -y python3-tk  # Required for matplotlib
+        sudo apt-get install -y libfreetype6-dev  # Required for matplotlib fonts
+
     - name: Install dependencies
       run: |
+        mkdir -p images
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
@@ -55,6 +63,8 @@ jobs:
       env:
         DATABASE_URI: ${{ secrets.DATABASE_URI }}
       run: |
+        # Set matplotlib to use Agg backend for headless environments
+        export MPLBACKEND=Agg
         python analyze_crime_data.py
 
     - name: Export data for Tableau
