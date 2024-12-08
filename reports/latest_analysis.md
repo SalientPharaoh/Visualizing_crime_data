@@ -1,10 +1,10 @@
 
-Loaded 269 incidents
-Date range: 2024-01-01 00:00:00 to 2024-12-07 15:45:31
+Loaded 296 incidents
+Date range: 2024-01-01 00:00:00 to 2024-12-07 17:45:02
 
 Incidents by source:
 source
-newsapi       169
+newsapi       196
 chicago_pd    100
 Name: count, dtype: int64
 
@@ -19,28 +19,28 @@ y Distribution](images/hourly_distribution.svg)
 
 ## Recent Incidents
 
-### HOMICIDE on 2024-12-07 15:45
-- Location: NDTV News
-- Description: In a bizarre and grisly tale of murder, a man was killed and his skull was used for alleged occult practices by four men in the hope of getting crores of rupees on the instructions of two "tantriks", who learnt "black magic from YouTube".
+### DRUG RELATED on 2024-12-07 17:45
+- Location: VOA News
+- Description: SYDNEY — Australian authorities are being criticized for ruling out drug decriminalization at an international summit in Sydney this week, ignoring a call by many experts and health groups for a health care response to drug use and addiction rather than crimi…
 
 
-### OTHER on 2024-12-07 15:36
-- Location: [Removed]
-- Description: [Removed]
+### HOMICIDE on 2024-12-07 17:40
+- Location: The Times of India
+- Description: New York City police suspect the gunman who killed a health insurance executive may have escaped by bus.  Surveillance footage shows the masked suspect entering a Manhattan bus station after Wednesday's shooting, but he wasn't seen leaving on foot. The suspec…
 
 
-### OTHER on 2024-12-07 15:35
-- Location: HackRead
-- Description: Operation Destabilise was a major international operation led by the UK's National Crime Agency (NCA) to dismantle two Russian-speaking criminal networks: Smart and TGR. These networks were backbone in laundering billions of dollars for various criminal activ…
+### SHOOTING on 2024-12-07 17:38
+- Location: PBS
+- Description: This week's fatal shooting of UnitedHealthcare CEO Brian Thompson has unleashed a wave of public feeling -- exasperation, anger, resentment, helplessness -- from Americans sharing personal stories of interactions with insurance companies, often seen as facele…
 
 
-### HOMICIDE on 2024-12-07 15:21
-- Location: Screen Rant
-- Description: Murder in a Small Town’s season 1 finale left burning questions for the Fox murder mystery show to answer if Karl and Cassandra’s story continues.
+### OTHER on 2024-12-07 17:35
+- Location: Blogs.com
+- Description: Prattville, AL removed Prattville Pride's float from the annual Christmas parade after Prattville Pride notified the city about vague threats (to throw eggs and water at the float) and asked for additional security and police presence. The mayor said the city…
 
 
-### HOMICIDE on 2024-12-07 15:14
-- Location: NDTV News
-- Description: A 19-year-old man was arrested for allegedly being involved in killing a seven-month pregnant woman and burying her body in a pit in Haryana, police said on Saturday.
+### SHOOTING on 2024-12-07 17:20
+- Location: International Business Times
+- Description: The gunman was spotted on video wearing the backpack when he entered the park the morning of the shooting but did not have it on when he exited
 
-Analysis generated at: Sun Dec  8 15:46:04 UTC 2024
+Analysis generated at: Sun Dec  8 17:47:14 UTC 2024
