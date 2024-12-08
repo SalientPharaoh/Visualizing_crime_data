@@ -27,8 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install pandas requests python-dotenv
-
+        pip install pandas requests python-dotenv matplotlib seaborn
     - name: Debug Database
       run: |
         echo "Checking for database..."
