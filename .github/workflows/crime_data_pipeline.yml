@@ -1,14 +1,14 @@
-# .github/workflows/crime_data_pipeline.yml
+# .github/workflows/crime_pipeline.yml
 name: Crime Data Pipeline
 
 on:
   schedule:
-    - cron: '0 */12 * * *'  # Run scraping every 12 hours
-    - cron: '0 */6 * * *'   # Run analysis every 6 hours
-  workflow_dispatch:        # Manual trigger
+    - cron: '0 */12 * * *'
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
 
 permissions:
-  contents: write        # Add explicit permissions
+  contents: write
 
 jobs:
   update-crime-data:
@@ -17,7 +17,6 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
       with:
-        persist-credentials: false
         fetch-depth: 0
 
     - name: Set up Python
@@ -30,21 +29,44 @@ jobs:
         python -m pip install --upgrade pip
         pip install pandas requests python-dotenv
 
-    - name: Create reports directory
-      run: mkdir -p reports
+    - name: Debug Database
+      run: |
+        echo "Checking for database..."
+        if [ -f crime_data.db ]; then
+          echo "Database exists"
+          sqlite3 crime_data.db ".tables"
+          sqlite3 crime_data.db "SELECT COUNT(*) FROM incidents;"
+        else
+          echo "No database found"
+        fi
 
     - name: Run scraper
       env:
         NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
       run: |
-        echo "Starting scraper at $(date)"
+        echo "Running scraper..."
         python main.py
+        echo "Scraper finished"
+        if [ -f crime_data.db ]; then
+          echo "Database after scraping:"
+          sqlite3 crime_data.db "SELECT COUNT(*) FROM incidents;"
+        fi
 
-    - name: Run analysis
+    - name: Create and check reports directory
       run: |
-        echo "Running analysis at $(date)"
+        mkdir -p reports
+        echo "Contents of current directory:"
+        ls -la
+        echo "Contents of reports directory:"
+        ls -la reports/
+
+    - name: Run analysis and generate report
+      run: |
+        echo "Running analysis..."
         python analyze_crime_data.py > reports/latest_analysis.md
-        echo "Analysis generated at: $(date)" >> reports/latest_analysis.md
+        echo -e "\nAnalysis generated at: $(date)" >> reports/latest_analysis.md
+        echo "Report contents:"
+        cat reports/latest_analysis.md
 
     - name: Update README
       run: |
@@ -60,8 +82,18 @@ jobs:
           fi
         } > README.md
 
+    - name: Check files before commit
+      run: |
+        echo "Files in repository:"
+        ls -la
+        echo "Git status:"
+        git status
+
     - name: Commit and push changes
-      uses: ad-m/github-push-action@master
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        branch: ${{ github.ref }}
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add reports/* README.md crime_data.db || true
+        git status
+        git commit -m "Update crime data and analysis [skip ci]" || echo "No changes to commit"
+        git push || echo "No changes to push"
