@@ -1,14 +1,14 @@
 # Crime Data Analysis
-Last updated: Sun Dec  8 12:40:54 UTC 2024
+Last updated: Sun Dec  8 15:46:04 UTC 2024
 
 ## Latest Analysis
 
-Loaded 230 incidents
-Date range: 2024-01-01 00:00:00 to 2024-12-07 12:38:50
+Loaded 269 incidents
+Date range: 2024-01-01 00:00:00 to 2024-12-07 15:45:31
 
 Incidents by source:
 source
-newsapi       130
+newsapi       169
 chicago_pd    100
 Name: count, dtype: int64
 
@@ -23,28 +23,28 @@ y Distribution](images/hourly_distribution.svg)
 
 ## Recent Incidents
 
-### HOMICIDE on 2024-12-07 12:38
-- Location: Newsweek
-- Description: Police have yet to identify the assailant who gunned down the CEO of United Healthcare in New York City on December 4.
+### HOMICIDE on 2024-12-07 15:45
+- Location: NDTV News
+- Description: In a bizarre and grisly tale of murder, a man was killed and his skull was used for alleged occult practices by four men in the hope of getting crores of rupees on the instructions of two "tantriks", who learnt "black magic from YouTube".
 
 
-### HOMICIDE on 2024-12-07 12:33
-- Location: CNN
-- Description: Ellen Greenberg was found dead in 2011 in her Philadelphia apartment with a knife in her chest. Despite contradictory evidence, her death was ruled a suicide. Years later, her parents are still fighting to find the truth.
+### OTHER on 2024-12-07 15:36
+- Location: [Removed]
+- Description: [Removed]
 
 
-### HOMICIDE on 2024-12-07 12:00
-- Location: CBC News
-- Description: A man living in Winnipeg who was extradited to New Jersey last week after being linked to a decades-old cold case homicide has a long history of violence on both sides of the border.
+### OTHER on 2024-12-07 15:35
+- Location: HackRead
+- Description: Operation Destabilise was a major international operation led by the UK's National Crime Agency (NCA) to dismantle two Russian-speaking criminal networks: Smart and TGR. These networks were backbone in laundering billions of dollars for various criminal activ…
 
 
-### HOMICIDE on 2024-12-07 11:55
-- Location: Nakedcapitalism.com
-- Description: Our vocal daily links: US obesity rising, Lond Covid, Romania coup, Syria jihadist advance freakout, Meta hearts fossil fuels, China manufacturing, SKorera impachment checked, moar Israel genocide, SSN sales curbed? UnitedHealth murder celebrations continue, …
+### HOMICIDE on 2024-12-07 15:21
+- Location: Screen Rant
+- Description: Murder in a Small Town’s season 1 finale left burning questions for the Fox murder mystery show to answer if Karl and Cassandra’s story continues.
 
 
-### OTHER on 2024-12-07 11:30
-- Location: Wired
-- Description: Plus: Russian spies keep hijacking other hackers’ infrastructure, Hydra dark web market admin gets life sentence in Russia, and more of the week’s top security news.
+### HOMICIDE on 2024-12-07 15:14
+- Location: NDTV News
+- Description: A 19-year-old man was arrested for allegedly being involved in killing a seven-month pregnant woman and burying her body in a pit in Haryana, police said on Saturday.
 
-Analysis generated at: Sun Dec  8 12:40:54 UTC 2024
+Analysis generated at: Sun Dec  8 15:46:04 UTC 2024
