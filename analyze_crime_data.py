@@ -1,158 +1,156 @@
 # analyze_crime_data.py
 import sqlite3
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from datetime import datetime, timedelta
 import re
-from datetime import datetime
+import os
 
 class CrimeAnalyzer:
     def __init__(self, db_path='crime_data.db'):
         self.db_path = db_path
+        self.setup_style()
         
-    def parse_date(self, date_str):
-        """Parse dates with error handling"""
-        try:
-            # First try ISO format
-            return pd.to_datetime(date_str, format='ISO8601', utc=True).tz_localize(None)
-        except:
-            try:
-                # Then try general parsing
-                return pd.to_datetime(date_str).tz_localize(None)
-            except:
-                print(f"Could not parse date: {date_str}")
-                return None
+    def setup_style(self):
+        """Set up plotting style"""
+        plt.style.use('seaborn')
+        sns.set_palette("husl")
+        plt.rcParams['figure.figsize'] = [10, 6]
+        plt.rcParams['svg.fonttype'] = 'none'  # Make text selectable in SVG
 
-    def load_data(self):
-        """Load and clean data"""
-        conn = sqlite3.connect(self.db_path)
-        self.df = pd.read_sql_query('SELECT * FROM incidents', conn)
-        conn.close()
+    def create_visualizations(self):
+        """Create and save visualizations"""
+        os.makedirs('reports/images', exist_ok=True)
         
-        print("\nSample of raw dates:")
-        print(self.df['date'].head())
-        
-        # Convert dates safely
-        print("\nConverting dates...")
-        self.df['date'] = self.df['date'].apply(self.parse_date)
-        
-        # Clean descriptions and standardize sources
-        self.df['description'] = self.df['description'].fillna('')
-        self.df['source'] = self.df['source'].replace({
-            'chicago_pd': 'chicago_police',
-            'police_chicago': 'chicago_police'
-        })
-        
-        # Remove any rows where date parsing failed
-        valid_dates = self.df['date'].notna()
-        invalid_count = (~valid_dates).sum()
-        if invalid_count > 0:
-            print(f"\nRemoved {invalid_count} rows with invalid dates")
-            self.df = self.df[valid_dates]
-        
-        print(f"\nProcessed {len(self.df)} valid incidents")
-        print("\nSample of processed dates:")
-        print(self.df['date'].head())
-        
-        return self.df
+        self.create_time_distribution()
+        self.create_source_distribution()
+        self.create_crime_type_distribution()
+        self.create_hourly_heatmap()
 
-    def analyze_incidents(self):
-        """Analyze recent incidents by source"""
-        print("\n=== Recent Crime Analysis ===")
+    def create_time_distribution(self):
+        """Create time distribution plot"""
+        plt.figure(figsize=(12, 6))
         
-        for source in self.df['source'].unique():
-            source_data = self.df[self.df['source'] == source]
-            print(f"\n{source.upper()}")
-            print(f"Total incidents: {len(source_data)}")
-            
-            # Show most recent incidents
-            recent = source_data.sort_values('date', ascending=False).head(5)
-            for _, incident in recent.iterrows():
-                print("\n---")
-                print(f"Date: {incident['date'].strftime('%Y-%m-%d %H:%M')}")
-                print(f"Location: {incident['location']}")
-                print(f"Type: {incident['crime_type']}")
-                
-                if len(str(incident['description'])) > 10:
-                    desc = str(incident['description']).strip()
-                    print("Description:", desc)
-                    
-                    # Extract interesting details
-                    details = self.extract_details(desc)
-                    if details:
-                        for key, value in details.items():
-                            print(f"{key.title()}: {', '.join(value)}")
+        # Create hourly distribution
+        hourly_counts = self.df['date'].dt.hour.value_counts().sort_index()
+        plt.bar(hourly_counts.index, hourly_counts.values, alpha=0.7)
+        
+        plt.title('Incident Distribution by Hour of Day')
+        plt.xlabel('Hour (24-hour format)')
+        plt.ylabel('Number of Incidents')
+        plt.grid(True, alpha=0.3)
+        
+        # Add average line
+        plt.axhline(y=hourly_counts.mean(), color='r', linestyle='--', 
+                   label=f'Average ({hourly_counts.mean():.1f} incidents)')
+        plt.legend()
+        
+        plt.savefig('reports/images/time_distribution.svg', bbox_inches='tight')
+        plt.close()
 
-    def extract_details(self, text):
-        """Extract relevant details from description"""
-        details = {}
+    def create_source_distribution(self):
+        """Create source distribution plot"""
+        plt.figure(figsize=(10, 6))
         
-        # Convert to lowercase for matching
-        text = text.lower()
+        source_counts = self.df['source'].value_counts()
+        colors = sns.color_palette('husl', n_colors=len(source_counts))
         
-        # Weapons
-        weapons = re.findall(r'\b(gun|knife|firearm|weapon|pistol|rifle)\b', text)
-        if weapons:
-            details['weapons'] = list(set(weapons))
+        plt.pie(source_counts.values, labels=source_counts.index, colors=colors,
+                autopct='%1.1f%%', startangle=90)
+        plt.title('Incidents by Source')
         
-        # Money amounts
-        amounts = re.findall(r'\$\s*(\d+(?:,\d{3})*(?:\.\d{2})?)', text)
-        if amounts:
-            details['amounts'] = amounts
-        
-        # Violence keywords
-        violence = re.findall(r'\b(assault|battery|fight|attack|threat|shot|stabbed|injured)\b', text)
-        if violence:
-            details['violence_indicators'] = list(set(violence))
-        
-        # Locations
-        locations = re.findall(r'\b(\d+(?:st|nd|rd|th)?\s+(?:street|ave|avenue|road|rd|block|blvd|boulevard))\b', text)
-        if locations:
-            details['locations'] = list(set(locations))
-        
-        return details
+        plt.savefig('reports/images/source_distribution.svg', bbox_inches='tight')
+        plt.close()
 
-    def print_statistics(self):
-        """Print summary statistics"""
-        print("\n=== Crime Statistics ===")
+    def create_crime_type_distribution(self):
+        """Create crime type distribution plot"""
+        plt.figure(figsize=(12, 6))
         
-        # Source distribution
-        print("\nIncidents by Source:")
-        print(self.df['source'].value_counts())
+        crime_counts = self.df['crime_type'].value_counts().head(10)
+        sns.barplot(x=crime_counts.values, y=crime_counts.index)
         
-        # Date range
-        print("\nDate Range:")
-        print(f"Earliest: {self.df['date'].min().strftime('%Y-%m-%d %H:%M')}")
-        print(f"Latest: {self.df['date'].max().strftime('%Y-%m-%d %H:%M')}")
+        plt.title('Top 10 Crime Types')
+        plt.xlabel('Number of Incidents')
         
-        # Time of day analysis
-        self.df['hour'] = self.df['date'].dt.hour
-        time_periods = pd.cut(self.df['hour'], 
-                            bins=[0,6,12,18,24], 
-                            labels=['Night (12AM-6AM)', 'Morning (6AM-12PM)',
-                                   'Afternoon (12PM-6PM)', 'Evening (6PM-12AM)'])
+        plt.savefig('reports/images/crime_types.svg', bbox_inches='tight')
+        plt.close()
+
+    def create_hourly_heatmap(self):
+        """Create hourly heatmap by source"""
+        plt.figure(figsize=(15, 8))
         
-        print("\nIncidents by Time of Day:")
-        print(time_periods.value_counts())
+        # Create pivot table
+        hourly_by_source = pd.crosstab(self.df['date'].dt.hour, 
+                                      self.df['source'])
         
-        # Crime types
-        if 'crime_type' in self.df.columns:
-            print("\nMost Common Crime Types:")
-            print(self.df['crime_type'].value_counts().head())
+        # Create heatmap
+        sns.heatmap(hourly_by_source, cmap='YlOrRd', annot=True, fmt='d')
+        
+        plt.title('Hourly Incidents by Source')
+        plt.xlabel('Source')
+        plt.ylabel('Hour of Day')
+        
+        plt.savefig('reports/images/hourly_heatmap.svg', bbox_inches='tight')
+        plt.close()
+
+    def generate_report(self):
+        """Generate a formatted analysis report with visualizations"""
+        # Create visualizations first
+        self.create_visualizations()
+        
+        report = []
+        
+        # Header
+        report.append("# Crime Data Analysis Report")
+        report.append(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}\n")
+        
+        # Summary Statistics
+        report.append("## Summary Statistics (Last 24 Hours)")
+        report.append(f"Total Incidents: {len(self.df)}")
+        report.append(f"Date Range: {self.df['date'].min().strftime('%Y-%m-%d %H:%M')} to {self.df['date'].max().strftime('%Y-%m-%d %H:%M')}\n")
+        
+        # Add time distribution visualization
+        report.append("## Temporal Distribution")
+        report.append("![Time Distribution](images/time_distribution.svg)")
+        report.append("*Figure 1: Distribution of incidents across hours of the day*\n")
+        
+        # Add source distribution
+        report.append("## Source Distribution")
+        report.append("![Source Distribution](images/source_distribution.svg)")
+        report.append("*Figure 2: Breakdown of incidents by source*\n")
+        
+        # Add crime type distribution
+        report.append("## Crime Types")
+        report.append("![Crime Types](images/crime_types.svg)")
+        report.append("*Figure 3: Most common types of incidents*\n")
+        
+        # Add heatmap
+        report.append("## Hourly Patterns")
+        report.append("![Hourly Heatmap](images/hourly_heatmap.svg)")
+        report.append("*Figure 4: Heatmap showing incident patterns by hour and source*\n")
+        
+        # Recent Major Incidents
+        report.append("## Recent Major Incidents")
+        for idx, row in self.df.head(5).iterrows():
+            report.append(f"\n### Incident at {row['date'].strftime('%Y-%m-%d %H:%M')}")
+            report.append(f"Location: {row['location']}")
+            report.append(f"Type: {row['crime_type']}")
+            if row['description']:
+                report.append(f"Description: {row['description']}")
+            report.append("")
+        
+        return "\n".join(report)
 
 def main():
     try:
         analyzer = CrimeAnalyzer()
-        
-        print("Loading data...")
         analyzer.load_data()
-        
-        print("\nAnalyzing incidents...")
-        analyzer.analyze_incidents()
-        
-        print("\nGenerating statistics...")
-        analyzer.print_statistics()
+        report = analyzer.generate_report()
+        print(report)
         
     except Exception as e:
-        print(f"Error: {str(e)}")
+        print(f"Error generating report: {str(e)}")
         import traceback
         print(traceback.format_exc())
 
