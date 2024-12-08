@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="720pt" height="432pt" viewBox="0 0 720 432" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2024-12-08T14:30:06.537623</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.7.5, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 432 
+L 720 432 
+L 720 0 
+L 0 0 
+z
+" style="fill: #ffffff"/>
+  </g>
+  <g id="axes_1">
+   <g id="matplotlib.axis_1"/>
+   <g id="matplotlib.axis_2"/>
+   <g id="patch_2">
+    <path d="M 502.056 218.16 
+C 502.056 200.427348 498.511099 182.872305 491.630144 166.529129 
+C 484.74919 150.185953 474.670021 135.382028 461.986453 122.989528 
+C 449.302885 110.597029 434.268993 100.8642 417.770502 94.364454 
+C 401.27201 87.864707 383.639413 84.728244 365.91154 85.139849 
+C 348.183666 85.551455 330.715636 89.502884 314.536582 96.761338 
+C 298.357528 104.019791 283.791546 114.43987 271.696793 127.407672 
+C 259.602041 140.375474 250.220797 155.631231 244.10576 172.276148 
+C 237.990723 188.921064 235.264388 206.621713 236.087377 224.335257 
+L 369 218.16 
+z
+" style="fill: #f77189"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 236.087377 224.335257 
+C 237.699752 259.03907 252.841568 291.767555 278.247676 315.463211 
+C 303.653785 339.158867 337.356583 351.986559 372.088473 351.180151 
+C 406.820362 350.373743 439.891496 335.995688 464.170485 311.14644 
+C 488.449474 286.297191 502.056007 252.901225 502.056 218.159975 
+L 369 218.16 
+z
+" style="fill: #bb9832"/>
+   </g>
+   <g id="text_1">
+    <text style="fill: #262626; font: 10px 'Arial', 'Liberation Sans', 'DejaVu Sans', 'Bitstream Vera Sans', sans-serif; text-anchor: end" x="365.602694" y="74.42299" transform="rotate(-0 365.602694 74.42299)">newsapi</text>
+   </g>
+   <g id="text_2">
+    <text style="fill: #262626; font: 10px 'Arial', 'Liberation Sans', 'DejaVu Sans', 'Bitstream Vera Sans', sans-serif; text-anchor: middle" x="367.146924" y="140.933066" transform="rotate(-0 367.146924 140.933066)">50.7%</text>
+   </g>
+   <g id="text_3">
+    <text style="fill: #262626; font: 10px 'Arial', 'Liberation Sans', 'DejaVu Sans', 'Bitstream Vera Sans', sans-serif; text-anchor: start" x="372.39732" y="367.008728" transform="rotate(-0 372.39732 367.008728)">chicago_pd</text>
+   </g>
+   <g id="text_4">
+    <text style="fill: #262626; font: 10px 'Arial', 'Liberation Sans', 'DejaVu Sans', 'Bitstream Vera Sans', sans-serif; text-anchor: middle" x="370.853084" y="300.557247" transform="rotate(-0 370.853084 300.557247)">49.3%</text>
+   </g>
+   <g id="text_5">
+    <text style="fill: #262626; font: 12px 'Arial', 'Liberation Sans', 'DejaVu Sans', 'Bitstream Vera Sans', sans-serif; text-anchor: middle" x="369" y="45.84" transform="rotate(-0 369 45.84)">Incidents by Source</text>
+   </g>
+  </g>
+ </g>
+</svg>
