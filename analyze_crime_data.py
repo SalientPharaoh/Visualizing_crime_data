@@ -34,7 +34,9 @@ class CrimeAnalyzer:
                 print(f"{source}: {count}")
             
             if stats['date_range']['min'] and stats['date_range']['max']:
-                print(f"\nDate range: {stats['date_range']['min']} to {stats['date_range']['max']}")
+                print("\nDate range:")
+                print(f"Earliest: {stats['date_range']['min']}")
+                print(f"Latest: {stats['date_range']['max']}")
             
             print("\nSource Status:")
             if not source_status.empty:
@@ -45,7 +47,7 @@ class CrimeAnalyzer:
         except Exception as e:
             logging.error(f"Error loading data: {str(e)}")
 
-    def generate_report(self, output_file='reports/latest_analysis.md'):
+    async def generate_report(self, output_file='reports/latest_analysis.md'):
         """Generate analysis report"""
         try:
             os.makedirs('reports', exist_ok=True)
@@ -54,7 +56,7 @@ class CrimeAnalyzer:
                 f.write(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
                 
                 # Add database statistics
-                stats = asyncio.run(self.db.get_statistics())
+                stats = await self.db.get_statistics()
                 f.write("## Database Statistics\n\n")
                 f.write(f"Total incidents: {stats['total_incidents']}\n\n")
                 
@@ -76,8 +78,12 @@ class CrimeAnalyzer:
                     f.write(source_status.to_string())
                     f.write("\n```\n")
                 
+            logging.info(f"Report generated successfully: {output_file}")
+                
         except Exception as e:
             logging.error(f"Error generating report: {str(e)}")
+            import traceback
+            logging.error(traceback.format_exc())
 
     def _plot_hourly_distribution(self):
         """Plot hourly distribution of incidents"""
@@ -128,7 +134,11 @@ class CrimeAnalyzer:
 async def main():
     analyzer = CrimeAnalyzer()
     await analyzer.load_data()
-    analyzer.generate_report()
+    await analyzer.generate_report()
 
 if __name__ == "__main__":
+    # Set matplotlib backend for headless environments
+    import matplotlib
+    matplotlib.use('Agg')
+    
     asyncio.run(main())

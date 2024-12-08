@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from database import CrimeDatabase
 from scrapers import NewsAPIScraper, PoliceScraper
+import asyncio
 
 # Set up logging
 logging.basicConfig(
@@ -12,7 +13,7 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-def fetch_all_data():
+async def fetch_all_data():
     """Fetch data from all sources"""
     # Load environment variables
     load_dotenv()
@@ -52,21 +53,20 @@ def fetch_all_data():
             saved = db.save_incidents(police_data)
             db.update_source('chicago_police', 'success', saved)
             logging.info(f"Saved {saved} police incidents")
-            
-        # Print summary
+        
+        # Get final statistics
+        stats = await db.get_statistics()
         print("\nData Collection Summary:")
         print("------------------------")
-        stats = db.get_statistics()
-        
         print(f"Total incidents in database: {stats['total_incidents']}")
-        
-        # Print count by source
+        print("\nBy source:")
         for source, count in stats['by_source'].items():
-            print(f"{source}: {count} incidents")
+            print(f"- {source}: {count}")
             
-        # Print date range
-        date_range = stats['date_range']
-        print(f"\nDate range: {date_range['min']} to {date_range['max']}")
+        if stats['date_range']['min'] and stats['date_range']['max']:
+            print("\nDate range:")
+            print(f"From: {stats['date_range']['min']}")
+            print(f"To: {stats['date_range']['max']}")
         
     except Exception as e:
         logging.error(f"Error fetching data: {str(e)}")
@@ -74,4 +74,4 @@ def fetch_all_data():
         logging.error(traceback.format_exc())
 
 if __name__ == "__main__":
-    fetch_all_data()
+    asyncio.run(fetch_all_data())
