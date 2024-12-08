@@ -1,4 +1,4 @@
-# .github/workflows/crime_pipeline.yml
+# .github/workflows/crime_data_pipeline.yml
 name: Crime Data Pipeline
 
 on:
@@ -7,12 +7,18 @@ on:
     - cron: '0 */6 * * *'   # Run analysis every 6 hours
   workflow_dispatch:        # Manual trigger
 
+permissions:
+  contents: write        # Add explicit permissions
+
 jobs:
   update-crime-data:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        persist-credentials: false
+        fetch-depth: 0
 
     - name: Set up Python
       uses: actions/setup-python@v2
@@ -24,38 +30,17 @@ jobs:
         python -m pip install --upgrade pip
         pip install pandas requests python-dotenv
 
-    - name: Cache database
-      uses: actions/cache@v2
-      with:
-        path: crime_data.db
-        key: ${{ runner.os }}-crime-db-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-crime-db-
-
-    - name: Check run type
-      id: check-time
-      run: |
-        HOUR=$(TZ=UTC date +%-H)  # Use %-H to remove leading zeros
-        if [ "$((HOUR % 12))" = "0" ]; then
-          echo "RUN_SCRAPER=true" >> $GITHUB_ENV
-        fi
-        if [ "$((HOUR % 6))" = "0" ]; then
-          echo "RUN_ANALYSIS=true" >> $GITHUB_ENV
-        fi
+    - name: Create reports directory
+      run: mkdir -p reports
 
     - name: Run scraper
-      if: env.RUN_SCRAPER == 'true'
       env:
         NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
       run: |
         echo "Starting scraper at $(date)"
         python main.py
 
-    - name: Create reports directory
-      run: mkdir -p reports
-
     - name: Run analysis
-      if: env.RUN_ANALYSIS == 'true'
       run: |
         echo "Running analysis at $(date)"
         python analyze_crime_data.py > reports/latest_analysis.md
@@ -76,8 +61,7 @@ jobs:
         } > README.md
 
     - name: Commit and push changes
-      run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
-        git add -A
-        git diff --staged --quiet || (git commit -m "Update crime data and analysis" && git push)
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        branch: ${{ github.ref }}
