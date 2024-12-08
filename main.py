@@ -22,7 +22,7 @@ def fetch_all_data():
         api_key = 'e52b12c7e8624710acf7cb2caea28cd5'  # Fallback key
     
     # Initialize database
-    db = CrimeDatabase('crime_data.db')
+    db = CrimeDatabase()
     
     try:
         # Fetch news data
@@ -56,32 +56,17 @@ def fetch_all_data():
         # Print summary
         print("\nData Collection Summary:")
         print("------------------------")
-        conn = db.get_connection()
-        cursor = conn.cursor()
+        stats = db.get_statistics()
         
-        # Get total count
-        cursor.execute("SELECT COUNT(*) FROM incidents")
-        total = cursor.fetchone()[0]
-        print(f"Total incidents in database: {total}")
+        print(f"Total incidents in database: {stats['total_incidents']}")
         
-        # Get count by source
-        cursor.execute("""
-            SELECT source, COUNT(*) as count 
-            FROM incidents 
-            GROUP BY source
-        """)
-        for source, count in cursor.fetchall():
+        # Print count by source
+        for source, count in stats['by_source'].items():
             print(f"{source}: {count} incidents")
             
-        # Get date range
-        cursor.execute("""
-            SELECT MIN(date), MAX(date) 
-            FROM incidents
-        """)
-        min_date, max_date = cursor.fetchone()
-        print(f"\nDate range: {min_date} to {max_date}")
-        
-        conn.close()
+        # Print date range
+        date_range = stats['date_range']
+        print(f"\nDate range: {date_range['min']} to {date_range['max']}")
         
     except Exception as e:
         logging.error(f"Error fetching data: {str(e)}")

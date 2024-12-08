@@ -1,15 +1,13 @@
+# Crime Data Analysis Report
+Generated at: 2024-12-08 23:56:18 UTC
 
-Loaded 296 incidents
-Date range: 2024-01-01 00:00:00 to 2024-12-07 17:45:02
+## Summary Statistics
+- Total Incidents: 100
+- Date Range: 2024-12-07 08:07 to 2024-12-07 18:21
+- Number of Sources: 1
 
-Incidents by source:
-source
-newsapi       196
-chicago_pd    100
-Name: count, dtype: int64
-
-Report saved to reports/latest_analysis.md
-y Distribution](images/hourly_distribution.svg)
+## Time Analysis
+![Hourly Distribution](images/hourly_distribution.svg)
 
 ## Source Distribution
 ![Source Distribution](images/source_distribution.svg)
@@ -19,6 +17,21 @@ y Distribution](images/hourly_distribution.svg)
 
 ## Recent Incidents
 
+### OTHER on 2024-12-07 18:21
+- Location: NDTV News
+- Description: Agartala Tripura Police on Saturday detained 10 Bangladeshi nationals, belonging to the Hindu community, for illegally entering India after fleeing their village due to unrest and tensions, an official said.
+
+
+### HOMICIDE on 2024-12-07 18:15
+- Location: The Times of India
+- Description: Police are hunting for the killer of insurance CEO Brian Thompson. The NYPD has a suspect but is keeping the name secret. They are tightening the net around the killer. The murder sparked outrage and celebration among some who had dealt with Thompson's compan…
+
+
+### OTHER on 2024-12-07 17:52
+- Location: Psychology Today
+- Description: In a new book, psychologist Michael Alcée challenges the narrative on OCD.
+
+
 ### DRUG RELATED on 2024-12-07 17:45
 - Location: VOA News
 - Description: SYDNEY — Australian authorities are being criticized for ruling out drug decriminalization at an international summit in Sydney this week, ignoring a call by many experts and health groups for a health care response to drug use and addiction rather than crimi…
@@ -27,20 +40,3 @@ y Distribution](images/hourly_distribution.svg)
 ### HOMICIDE on 2024-12-07 17:40
 - Location: The Times of India
 - Description: New York City police suspect the gunman who killed a health insurance executive may have escaped by bus.  Surveillance footage shows the masked suspect entering a Manhattan bus station after Wednesday's shooting, but he wasn't seen leaving on foot. The suspec…
-
-
-### SHOOTING on 2024-12-07 17:38
-- Location: PBS
-- Description: This week's fatal shooting of UnitedHealthcare CEO Brian Thompson has unleashed a wave of public feeling -- exasperation, anger, resentment, helplessness -- from Americans sharing personal stories of interactions with insurance companies, often seen as facele…
-
-
-### OTHER on 2024-12-07 17:35
-- Location: Blogs.com
-- Description: Prattville, AL removed Prattville Pride's float from the annual Christmas parade after Prattville Pride notified the city about vague threats (to throw eggs and water at the float) and asked for additional security and police presence. The mayor said the city…
-
-
-### SHOOTING on 2024-12-07 17:20
-- Location: International Business Times
-- Description: The gunman was spotted on video wearing the backpack when he entered the park the morning of the shooting but did not have it on when he exited
-
-Analysis generated at: Sun Dec  8 17:47:14 UTC 2024

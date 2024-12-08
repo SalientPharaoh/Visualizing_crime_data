@@ -1,93 +1,122 @@
 # test_pipeline.py
 import os
-import sqlite3
 import logging
 from datetime import datetime
 from database import CrimeDatabase
 from scrapers import NewsAPIScraper, PoliceScraper
 import pandas as pd
+from dotenv import load_dotenv
+import asyncio
+
 logging.basicConfig(level=logging.INFO)
 
-def test_database():
-    """Test database connection and tables"""
+async def test_database():
+    """Test database connection and operations"""
     print("\n=== Testing Database ===")
-    db = CrimeDatabase('crime_data.db')
-    
-    # Check if database file exists
-    if os.path.exists('crime_data.db'):
-        print("Database file exists")
+    try:
+        db = CrimeDatabase()
+        print("Successfully connected to PostgreSQL")
         
-        # Check tables
-        conn = sqlite3.connect('crime_data.db')
-        cursor = conn.cursor()
-        
-        # Get list of tables
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-        tables = cursor.fetchall()
-        print("\nTables in database:")
-        for table in tables:
-            cursor.execute(f"SELECT COUNT(*) FROM {table[0]}")
-            count = cursor.fetchone()[0]
-            print(f"- {table[0]}: {count} rows")
-        
-        conn.close()
-    else:
-        print("Database file does not exist!")
+        # Get database statistics
+        stats = await db.get_statistics()
+        print("\nDatabase Statistics:")
+        print(f"Total incidents: {stats['total_incidents']}")
+        print("\nIncidents by source:")
+        for source, count in stats['by_source'].items():
+            print(f"- {source}: {count}")
+            
+        if stats['date_range']['min'] and stats['date_range']['max']:
+            print("\nDate range:")
+            print(f"Earliest: {stats['date_range']['min']}")
+            print(f"Latest: {stats['date_range']['max']}")
+            
+        # Check source status
+        source_status = db.get_source_status()
+        if not source_status.empty:
+            print("\nSource Status:")
+            print(source_status)
+            
+    except Exception as e:
+        print(f"Database connection error: {str(e)}")
 
-def test_scrapers():
-    """Test data scrapers"""
-    print("\n=== Testing Scrapers ===")
-    
-    # Test NewsAPI
-    api_key = 'e52b12c7e8624710acf7cb2caea28cd5'  # Your API key
-    news_scraper = NewsAPIScraper(api_key)
-    print("\nTesting NewsAPI scraper...")
-    news_data = news_scraper.fetch_data()
-    print(f"Retrieved {len(news_data)} news articles")
-    if not news_data.empty:
-        print("\nSample news data:")
-        print(news_data[['date', 'location', 'crime_type']].head())
-    
-    # Test Police data
-    print("\nTesting Police data scraper...")
-    police_scraper = PoliceScraper()
-    police_data = police_scraper.fetch_data()
-    print(f"Retrieved {len(police_data)} police records")
-    if not police_data.empty:
-        print("\nSample police data:")
-        print(police_data[['date', 'location', 'crime_type']].head())
-
-def check_data_quality():
+async def check_data_quality():
     """Check data quality in database"""
     print("\n=== Checking Data Quality ===")
     
-    conn = sqlite3.connect('crime_data.db')
-    df = pd.read_sql_query("SELECT * FROM incidents", conn)
-    conn.close()
-    
-    if not df.empty:
-        print(f"\nTotal records: {len(df)}")
-        print("\nMissing values:")
-        print(df.isnull().sum())
+    try:
+        db = CrimeDatabase()
+        stats = await db.get_statistics()
         
-        print("\nDate range:")
-        print(f"Earliest: {df['date'].min()}")
-        print(f"Latest: {df['date'].max()}")
-        
-        print("\nSources distribution:")
-        print(df['source'].value_counts())
-    else:
-        print("No data in database!")
+        if stats['total_incidents'] > 0:
+            print(f"\nTotal records: {stats['total_incidents']}")
+            
+            print("\nDate range:")
+            print(f"Earliest: {stats['date_range']['min']}")
+            print(f"Latest: {stats['date_range']['max']}")
+            
+            print("\nSources distribution:")
+            for source, count in stats['by_source'].items():
+                print(f"{source}: {count}")
+        else:
+            print("No data in database!")
+            
+    except Exception as e:
+        print(f"Error checking data quality: {str(e)}")
 
-def main():
-    print("Starting pipeline test...")
+async def test_scrapers():
+    """Test data scraping functionality"""
+    print("\n=== Testing Scrapers ===")
     
-    # Test components
-    test_database()
-    test_scrapers()
-    check_data_quality()
+    # Load environment variables
+    load_dotenv()
+    api_key = os.getenv('NEWS_API_KEY')
     
-    print("\nTest complete!")
+    if not api_key:
+        print("NEWS_API_KEY not found in environment variables")
+        return
+        
+    try:
+        # Test NewsAPI scraper
+        print("\nTesting NewsAPI scraper...")
+        news_scraper = NewsAPIScraper(api_key)
+        news_data = news_scraper.fetch_data(days_back=7)
+        if not news_data.empty:
+            print(f"Successfully retrieved {len(news_data)} news articles")
+            
+            # Test saving to database
+            db = CrimeDatabase()
+            saved = db.save_incidents(news_data)
+            print(f"Saved {saved} incidents to database")
+        else:
+            print("No news data retrieved")
+            
+        # Test Police scraper
+        print("\nTesting Police data scraper...")
+        police_scraper = PoliceScraper()
+        police_data = police_scraper.fetch_data()
+        if not police_data.empty:
+            print(f"Successfully retrieved {len(police_data)} police records")
+            
+            # Test saving to database
+            db = CrimeDatabase()
+            saved = db.save_incidents(police_data)
+            print(f"Saved {saved} incidents to database")
+        else:
+            print("No police data retrieved")
+            
+    except Exception as e:
+        print(f"Error testing scrapers: {str(e)}")
+
+async def main():
+    """Run all tests"""
+    print("=== Starting Pipeline Tests ===")
+    print(f"Time: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    await test_database()
+    await check_data_quality()
+    await test_scrapers()
+    
+    print("\n=== Tests Complete ===")
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

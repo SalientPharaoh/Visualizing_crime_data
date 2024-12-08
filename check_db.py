@@ -1,59 +1,64 @@
 # check_db.py
-import sqlite3
 import pandas as pd
+import logging
+from database import CrimeDatabase
+from datetime import datetime
 
 def check_database():
-    print("Checking crime_data.db...")
+    print("Checking MongoDB database...")
     
     try:
         # Connect to database
-        conn = sqlite3.connect('crime_data.db')
-        cursor = conn.cursor()
+        db = CrimeDatabase()
         
-        # Check tables
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
-        tables = cursor.fetchall()
-        print("\nTables found:", [t[0] for t in tables])
+        # Check collections
+        collections = db.db.list_collection_names()
+        print("\nCollections found:", collections)
         
-        # Check incidents table
-        if 'incidents' in [t[0] for t in tables]:
-            # Get column info
-            cursor.execute("PRAGMA table_info(incidents);")
-            columns = cursor.fetchall()
-            print("\nColumns in incidents table:")
-            for col in columns:
-                print(f"- {col[1]} ({col[2]})")
-            
-            # Get row count
-            cursor.execute("SELECT COUNT(*) FROM incidents")
-            count = cursor.fetchone()[0]
-            print(f"\nTotal rows: {count}")
+        # Check incidents collection
+        if 'incidents' in collections:
+            # Get document count
+            count = db.incidents.count_documents({})
+            print(f"\nTotal documents: {count}")
             
             # Get date range
-            cursor.execute("SELECT MIN(date), MAX(date) FROM incidents")
-            min_date, max_date = cursor.fetchone()
-            print(f"Date range: {min_date} to {max_date}")
+            date_range = db.incidents.aggregate([
+                {
+                    '$group': {
+                        '_id': None,
+                        'min_date': {'$min': '$date'},
+                        'max_date': {'$max': '$date'}
+                    }
+                }
+            ])
+            date_range = list(date_range)
+            if date_range:
+                print(f"Date range: {date_range[0]['min_date']} to {date_range[0]['max_date']}")
             
             # Get sample data
             print("\nSample data:")
-            df = pd.read_sql_query("SELECT * FROM incidents LIMIT 5", conn)
-            print(df)
+            cursor = db.incidents.find().limit(5)
+            df = pd.DataFrame(list(cursor))
+            if not df.empty:
+                print(df[['incident_id', 'date', 'crime_type', 'source']])
             
             # Get source distribution
             print("\nIncidents by source:")
-            df = pd.read_sql_query(
-                "SELECT source, COUNT(*) as count FROM incidents GROUP BY source", 
-                conn
-            )
-            print(df)
-            
+            pipeline = [
+                {'$group': {'_id': '$source', 'count': {'$sum': 1}}},
+                {'$sort': {'count': -1}}
+            ]
+            source_dist = list(db.incidents.aggregate(pipeline))
+            for doc in source_dist:
+                print(f"{doc['_id']}: {doc['count']} incidents")
+                
         else:
-            print("No incidents table found!")
+            print("No incidents collection found!")
             
-        conn.close()
-        
     except Exception as e:
         print(f"Error checking database: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
 
 if __name__ == "__main__":
     check_database()

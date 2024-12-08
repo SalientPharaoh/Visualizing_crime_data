@@ -22,19 +22,32 @@ class NewsAPIScraper:
         }
         
         try:
+            logging.info(f"Fetching news with params: {params}")
             response = requests.get(
                 self.base_url,
                 headers={'X-Api-Key': self.api_key},
                 params=params
             )
+            
+            logging.info(f"NewsAPI Response Status Code: {response.status_code}")
+            
+            if response.status_code != 200:
+                logging.error(f"NewsAPI Error Response: {response.text}")
+                return pd.DataFrame()
+                
             response.raise_for_status()
             data = response.json()
             
             if data['status'] != 'ok':
-                raise Exception(f"NewsAPI Error: {data.get('message')}")
+                logging.error(f"NewsAPI Error: {data.get('message')}")
+                return pd.DataFrame()
             
             articles = data.get('articles', [])
             logging.info(f"Retrieved {len(articles)} articles from NewsAPI")
+            
+            if not articles:
+                logging.warning("No articles found in NewsAPI response")
+                return pd.DataFrame()
             
             # Process articles
             processed_data = []
@@ -67,6 +80,10 @@ class NewsAPIScraper:
             df = pd.DataFrame(processed_data)
             if not df.empty:
                 df['date'] = pd.to_datetime(df['date'])
+                logging.info(f"Successfully processed {len(df)} articles")
+            else:
+                logging.warning("No articles were processed successfully")
+                
             return df
             
         except Exception as e:

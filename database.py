@@ -1,136 +1,226 @@
 # database.py
-import sqlite3
-import pandas as pd
+import os
 import logging
 from datetime import datetime
+from dotenv import load_dotenv
+import pandas as pd
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, MetaData, Table, Index, func
+from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy.dialects.postgresql import insert
+from sqlalchemy import and_
+
+# Initialize SQLAlchemy
+Base = declarative_base()
+
+class Incident(Base):
+    __tablename__ = 'incidents'
+    
+    id = Column(Integer, primary_key=True)
+    incident_id = Column(String, unique=True, nullable=False)
+    date = Column(DateTime, nullable=False)
+    description = Column(String)
+    location = Column(String)
+    crime_type = Column(String)
+    source = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('ix_incidents_date', date),
+        Index('ix_incidents_source', source),
+        Index('ix_incidents_crime_type', crime_type),
+    )
+
+class Source(Base):
+    __tablename__ = 'sources'
+    
+    id = Column(Integer, primary_key=True)
+    source = Column(String, unique=True, nullable=False)
+    last_fetch = Column(DateTime)
+    status = Column(String)
+    records_count = Column(Integer)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('ix_sources_source', source),
+    )
 
 class CrimeDatabase:
-    def __init__(self, db_path='crime_data.db'):
-        self.db_path = db_path
-        self.initialize_database()
-    
-    def get_connection(self):
-        """Get database connection"""
-        return sqlite3.connect(self.db_path)
-    
-    def initialize_database(self):
-        """Initialize database with required tables"""
-        conn = self.get_connection()
-        cursor = conn.cursor()
+    def __init__(self):
+        """Initialize database connection"""
+        load_dotenv()
         
-        # Create incidents table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS incidents (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                incident_id TEXT UNIQUE,
-                date TEXT,
-                description TEXT,
-                location TEXT,
-                crime_type TEXT,
-                source TEXT,
-                created_at TEXT DEFAULT CURRENT_TIMESTAMP
-            )
-        ''')
+        # Get database URL from environment variable
+        database_url = os.getenv('DATABASE_URI')
+        if not database_url:
+            raise ValueError("DATABASE_URI environment variable not set")
+            
+        # Convert postgres:// to postgresql://
+        if database_url.startswith('postgres://'):
+            database_url = database_url.replace('postgres://', 'postgresql://', 1)
+            
+        self.engine = create_engine(database_url)
+        Base.metadata.create_all(self.engine)
+        self.Session = sessionmaker(bind=self.engine)
         
-        # Create source tracking table
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS sources (
-                source TEXT PRIMARY KEY,
-                last_fetch TEXT,
-                status TEXT,
-                records_count INTEGER
-            )
-        ''')
-        
-        conn.commit()
-        conn.close()
-        
-        logging.info("Database initialized successfully")
-    
+        logging.info("PostgreSQL connection initialized")
+
     def save_incidents(self, df: pd.DataFrame) -> int:
         """Save incidents to database"""
         if df.empty:
             return 0
             
-        conn = self.get_connection()
         saved_count = 0
+        session = self.Session()
         
-        # Convert dates to string if they're datetime
-        if 'date' in df.columns and pd.api.types.is_datetime64_any_dtype(df['date']):
-            df['date'] = df['date'].dt.strftime('%Y-%m-%d %H:%M:%S')
-        
-        for _, row in df.iterrows():
-            try:
-                cursor = conn.cursor()
-                cursor.execute('''
-                    INSERT OR IGNORE INTO incidents 
-                    (incident_id, date, description, location, crime_type, source)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                ''', (
-                    str(row['incident_id']),
-                    str(row['date']),
-                    str(row.get('description', '')),
-                    str(row.get('location', '')),
-                    str(row.get('crime_type', '')),
-                    str(row['source'])
-                ))
-                if cursor.rowcount > 0:
+        try:
+            # Convert dates to datetime if they're strings
+            if 'date' in df.columns and df['date'].dtype == 'object':
+                df['date'] = pd.to_datetime(df['date'])
+            
+            # Process each row
+            for _, row in df.iterrows():
+                try:
+                    # Convert row to dict and handle NaN values
+                    incident_data = row.where(pd.notnull(row), None).to_dict()
+                    
+                    # Create upsert statement
+                    stmt = insert(Incident).values(
+                        incident_id=str(incident_data['incident_id']),
+                        date=incident_data['date'],
+                        description=str(incident_data.get('description', '')),
+                        location=str(incident_data.get('location', '')),
+                        crime_type=str(incident_data.get('crime_type', '')),
+                        source=str(incident_data['source'])
+                    )
+                    
+                    # Add ON CONFLICT DO UPDATE clause
+                    stmt = stmt.on_conflict_do_update(
+                        constraint='incidents_incident_id_key',
+                        set_=dict(
+                            date=incident_data['date'],
+                            description=str(incident_data.get('description', '')),
+                            location=str(incident_data.get('location', '')),
+                            crime_type=str(incident_data.get('crime_type', '')),
+                            source=str(incident_data['source']),
+                            updated_at=datetime.utcnow()
+                        )
+                    )
+                    
+                    session.execute(stmt)
                     saved_count += 1
-            except Exception as e:
-                logging.error(f"Error saving incident: {str(e)}")
-                logging.error(f"Problematic row: {row}")
-                
-        conn.commit()
-        conn.close()
+                    
+                except Exception as e:
+                    logging.error(f"Error saving incident: {str(e)}")
+                    logging.error(f"Problematic row: {row}")
+                    
+            session.commit()
+            
+        except Exception as e:
+            logging.error(f"Database error: {str(e)}")
+            session.rollback()
+            raise
+            
+        finally:
+            session.close()
+            
         return saved_count
 
     def update_source(self, source: str, status: str, records_count: int):
         """Update source tracking information"""
-        conn = self.get_connection()
+        session = self.Session()
+        
         try:
-            cursor = conn.cursor()
-            cursor.execute('''
-                INSERT OR REPLACE INTO sources 
-                (source, last_fetch, status, records_count)
-                VALUES (?, ?, ?, ?)
-            ''', (
-                source,
-                datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                status,
-                records_count
-            ))
-            conn.commit()
+            stmt = insert(Source).values(
+                source=source,
+                last_fetch=datetime.utcnow(),
+                status=status,
+                records_count=records_count
+            )
+            
+            stmt = stmt.on_conflict_do_update(
+                constraint='sources_source_key',
+                set_=dict(
+                    last_fetch=datetime.utcnow(),
+                    status=status,
+                    records_count=records_count,
+                    updated_at=datetime.utcnow()
+                )
+            )
+            
+            session.execute(stmt)
+            session.commit()
+            
         except Exception as e:
             logging.error(f"Error updating source {source}: {str(e)}")
+            session.rollback()
+            raise
+            
         finally:
-            conn.close()
+            session.close()
 
     def get_source_status(self) -> pd.DataFrame:
         """Get status of all sources"""
-        conn = self.get_connection()
-        df = pd.read_sql_query('SELECT * FROM sources', conn)
-        conn.close()
-        return df
+        session = self.Session()
+        
+        try:
+            sources = session.query(Source).all()
+            if not sources:
+                return pd.DataFrame()
+                
+            data = [{
+                'source': s.source,
+                'last_fetch': s.last_fetch,
+                'status': s.status,
+                'records_count': s.records_count,
+                'created_at': s.created_at,
+                'updated_at': s.updated_at
+            } for s in sources]
+            
+            return pd.DataFrame(data)
+            
+        except Exception as e:
+            logging.error(f"Error getting source status: {str(e)}")
+            return pd.DataFrame()
+            
+        finally:
+            session.close()
 
-    def get_statistics(self):
+    async def get_statistics(self):
         """Get database statistics"""
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        
         stats = {}
+        session = self.Session()
         
-        # Total incidents
-        cursor.execute("SELECT COUNT(*) FROM incidents")
-        stats['total_incidents'] = cursor.fetchone()[0]
-        
-        # Incidents by source
-        cursor.execute("SELECT source, COUNT(*) FROM incidents GROUP BY source")
-        stats['by_source'] = dict(cursor.fetchall())
-        
-        # Date range
-        cursor.execute("SELECT MIN(date), MAX(date) FROM incidents")
-        min_date, max_date = cursor.fetchone()
-        stats['date_range'] = {'min': min_date, 'max': max_date}
-        
-        conn.close()
+        try:
+            # Total incidents
+            stats['total_incidents'] = session.query(Incident).count()
+            
+            # Incidents by source
+            source_counts = session.query(
+                Incident.source,
+                func.count(Incident.id).label('count')
+            ).group_by(Incident.source).all()
+            
+            stats['by_source'] = {
+                source: count for source, count in source_counts
+            }
+            
+            # Date range
+            date_range = session.query(
+                func.min(Incident.date),
+                func.max(Incident.date)
+            ).first()
+            
+            stats['date_range'] = {
+                'min': date_range[0],
+                'max': date_range[1]
+            }
+            
+        except Exception as e:
+            logging.error(f"Error getting statistics: {str(e)}")
+            
+        finally:
+            session.close()
+            
         return stats

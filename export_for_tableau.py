@@ -1,64 +1,66 @@
 # export_for_tableau.py
-import sqlite3
 import pandas as pd
 from datetime import datetime
+from database import CrimeDatabase
+import os
+import logging
+import asyncio
 
-def export_data():
+async def export_data():
     """Export data in formats suitable for Tableau"""
-    conn = sqlite3.connect('crime_data.db')
-    
-    # Main incidents data
-    incidents_df = pd.read_sql_query("""
-        SELECT 
-            incident_id,
-            date,
-            description,
-            location,
-            crime_type,
-            source,
-            strftime('%Y', date) as year,
-            strftime('%m', date) as month,
-            strftime('%d', date) as day,
-            strftime('%H', date) as hour
-        FROM incidents
-    """, conn)
-    
-    # Create summary tables
-    crime_by_type = pd.read_sql_query("""
-        SELECT 
-            crime_type,
-            source,
-            COUNT(*) as incident_count,
-            strftime('%Y-%m', date) as month_year
-        FROM incidents
-        GROUP BY crime_type, source, month_year
-    """, conn)
-    
-    hourly_patterns = pd.read_sql_query("""
-        SELECT 
-            strftime('%H', date) as hour,
-            crime_type,
-            COUNT(*) as incident_count
-        FROM incidents
-        GROUP BY hour, crime_type
-    """, conn)
-    
-    # Export to CSV
-    incidents_df.to_csv('tableau_data/incidents_full.csv', index=False)
-    crime_by_type.to_csv('tableau_data/crime_by_type.csv', index=False)
-    hourly_patterns.to_csv('tableau_data/hourly_patterns.csv', index=False)
-    
-    print("Data exported successfully!")
-    print("\nFor Tableau, you can create visualizations like:")
-    print("1. Crime Heatmap by Hour and Type")
-    print("2. Crime Trends Over Time")
-    print("3. Source Distribution")
-    print("4. Crime Type Distribution")
-    print("5. Temporal Patterns")
+    try:
+        db = CrimeDatabase()
+        
+        # Create export directory
+        os.makedirs('tableau_data', exist_ok=True)
+        
+        logging.info("Getting database statistics...")
+        stats = await db.get_statistics()
+        logging.info(f"Found {stats['total_incidents']} incidents")
+        
+        # Get source status
+        source_status = db.get_source_status()
+        if not source_status.empty:
+            source_status.to_csv('tableau_data/source_status.csv', index=False)
+            logging.info("Exported source status data")
+        
+        # Create summary tables
+        # Export source status
+        source_status = db.get_source_status()
+        if not source_status.empty:
+            source_status.to_csv('tableau_data/source_status.csv', index=False)
+            logging.info("Exported source status data")
+        
+        # Export statistics
+        stats_df = pd.DataFrame([{
+            'total_incidents': stats['total_incidents'],
+            'min_date': stats['date_range']['min'],
+            'max_date': stats['date_range']['max'],
+            'export_time': datetime.now()
+        }])
+        stats_df.to_csv('tableau_data/statistics.csv', index=False)
+        logging.info("Exported statistics data")
+        
+        # Export source counts
+        source_counts = pd.DataFrame([
+            {'source': source, 'count': count}
+            for source, count in stats['by_source'].items()
+        ])
+        if not source_counts.empty:
+            source_counts.to_csv('tableau_data/source_counts.csv', index=False)
+            logging.info("Exported source counts data")
+        
+        logging.info("Data export completed successfully")
+        
+    except Exception as e:
+        logging.error(f"Error exporting data: {str(e)}")
+        raise
 
 if __name__ == "__main__":
-    # Create export directory
-    import os
-    os.makedirs('tableau_data', exist_ok=True)
+    # Set up logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
     
-    export_data()
+    asyncio.run(export_data())

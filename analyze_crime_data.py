@@ -1,157 +1,133 @@
 # analyze_crime_data.py
-import sqlite3
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from datetime import datetime, timedelta
 import os
 import logging
+from database import CrimeDatabase
+import asyncio
 
 class CrimeAnalyzer:
-    def __init__(self, db_path='crime_data.db'):
-        self.db_path = db_path
+    def __init__(self):
         self.setup_style()
-        
+        self.db = CrimeDatabase()
+
     def setup_style(self):
-        """Setup matplotlib style"""
+        """Set up plotting style"""
         plt.style.use('seaborn-v0_8')  # Updated style name
         sns.set_palette("husl")
-        plt.rcParams['figure.figsize'] = [10, 6]
-        plt.rcParams['svg.fonttype'] = 'none'
-
-    def load_data(self, days_back=None):
+        
+    async def load_data(self, days_back=None):
         """Load data with optional date filtering"""
-        conn = sqlite3.connect(self.db_path)
-        
-        if days_back:
-            cutoff_date = (datetime.now() - timedelta(days=days_back)).strftime('%Y-%m-%d')
-            query = f"SELECT * FROM incidents WHERE date >= '{cutoff_date}'"
-        else:
-            query = "SELECT * FROM incidents"
+        try:
+            # Get data from PostgreSQL
+            stats = await self.db.get_statistics()
+            source_status = self.db.get_source_status()
             
-        self.df = pd.read_sql_query(query, conn)
-        conn.close()
-
-        if not self.df.empty:
-            # Convert dates
-            self.df['date'] = pd.to_datetime(self.df['date'])
-            self.df = self.df.sort_values('date')
-            
-            print(f"\nLoaded {len(self.df)} incidents")
-            print(f"Date range: {self.df['date'].min()} to {self.df['date'].max()}")
+            # Print database stats
+            print(f"\nDatabase Statistics:")
+            print(f"Total incidents: {stats['total_incidents']}")
             print("\nIncidents by source:")
-            print(self.df['source'].value_counts())
-        else:
-            print("No data found in database")
+            for source, count in stats['by_source'].items():
+                print(f"{source}: {count}")
             
-        return self.df
-
-    def create_visualizations(self):
-        """Create all visualizations"""
-        if len(self.df) == 0:
-            print("No data available for visualizations")
-            return
-
-        os.makedirs('reports/images', exist_ok=True)
-        
-        # Time distribution
-        plt.figure(figsize=(12, 6))
-        self.df['hour'] = self.df['date'].dt.hour
-        hourly_counts = self.df['hour'].value_counts().sort_index()
-        
-        plt.bar(hourly_counts.index, hourly_counts.values, alpha=0.7)
-        plt.title('Incidents by Hour of Day')
-        plt.xlabel('Hour')
-        plt.ylabel('Number of Incidents')
-        plt.grid(True, alpha=0.3)
-        plt.savefig('reports/images/hourly_distribution.svg')
-        plt.close()
-        
-        # Source distribution
-        plt.figure(figsize=(10, 6))
-        source_counts = self.df['source'].value_counts()
-        plt.pie(source_counts.values, labels=source_counts.index, autopct='%1.1f%%')
-        plt.title('Incidents by Source')
-        plt.savefig('reports/images/source_distribution.svg')
-        plt.close()
-        
-        # Crime types
-        plt.figure(figsize=(12, 6))
-        crime_counts = self.df['crime_type'].value_counts().head(10)
-        plt.barh(range(len(crime_counts)), crime_counts.values)
-        plt.yticks(range(len(crime_counts)), crime_counts.index)
-        plt.title('Top 10 Crime Types')
-        plt.xlabel('Number of Incidents')
-        plt.tight_layout()
-        plt.savefig('reports/images/crime_types.svg')
-        plt.close()
+            if stats['date_range']['min'] and stats['date_range']['max']:
+                print(f"\nDate range: {stats['date_range']['min']} to {stats['date_range']['max']}")
+            
+            print("\nSource Status:")
+            if not source_status.empty:
+                print(source_status.to_string())
+            else:
+                print("No source status information available")
+                
+        except Exception as e:
+            logging.error(f"Error loading data: {str(e)}")
 
     def generate_report(self, output_file='reports/latest_analysis.md'):
         """Generate analysis report"""
-        os.makedirs('reports', exist_ok=True)
-        
-        report = []
-        report.append("# Crime Data Analysis Report")
-        report.append(f"Generated at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S UTC')}\n")
-        
-        if len(self.df) == 0:
-            report.append("No data available for analysis")
+        try:
+            os.makedirs('reports', exist_ok=True)
             with open(output_file, 'w') as f:
-                f.write('\n'.join(report))
-            return
-            
-        # Create visualizations
-        self.create_visualizations()
-        
-        # Add statistics
-        report.append("## Summary Statistics")
-        report.append(f"- Total Incidents: {len(self.df)}")
-        report.append(f"- Date Range: {self.df['date'].min().strftime('%Y-%m-%d %H:%M')} to {self.df['date'].max().strftime('%Y-%m-%d %H:%M')}")
-        report.append(f"- Number of Sources: {self.df['source'].nunique()}")
-        report.append("")
-        
-        # Add visualizations
-        report.append("## Time Analysis")
-        report.append("![Hourly Distribution](images/hourly_distribution.svg)")
-        report.append("")
-        
-        report.append("## Source Distribution")
-        report.append("![Source Distribution](images/source_distribution.svg)")
-        report.append("")
-        
-        report.append("## Crime Types")
-        report.append("![Crime Types](images/crime_types.svg)")
-        report.append("")
-        
-        # Recent incidents
-        report.append("## Recent Incidents")
+                f.write("# Crime Data Analysis Report\n\n")
+                f.write(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
+                
+                # Add database statistics
+                stats = asyncio.run(self.db.get_statistics())
+                f.write("## Database Statistics\n\n")
+                f.write(f"Total incidents: {stats['total_incidents']}\n\n")
+                
+                f.write("### Incidents by Source\n\n")
+                for source, count in stats['by_source'].items():
+                    f.write(f"- {source}: {count}\n")
+                f.write("\n")
+                
+                if stats['date_range']['min'] and stats['date_range']['max']:
+                    f.write("### Date Range\n\n")
+                    f.write(f"From: {stats['date_range']['min']}\n")
+                    f.write(f"To: {stats['date_range']['max']}\n\n")
+                
+                # Add source status
+                source_status = self.db.get_source_status()
+                if not source_status.empty:
+                    f.write("### Source Status\n\n")
+                    f.write("```\n")
+                    f.write(source_status.to_string())
+                    f.write("\n```\n")
+                
+        except Exception as e:
+            logging.error(f"Error generating report: {str(e)}")
+
+    def _plot_hourly_distribution(self):
+        """Plot hourly distribution of incidents"""
+        plt.figure(figsize=(12, 6))
+        self.df['hour'] = self.df['date'].dt.hour
+        sns.histplot(data=self.df, x='hour', bins=24)
+        plt.title('Hourly Distribution of Incidents')
+        plt.xlabel('Hour of Day')
+        plt.ylabel('Number of Incidents')
+        plt.savefig('images/hourly_distribution.svg')
+        plt.close()
+
+    def _plot_source_distribution(self):
+        """Plot distribution by source"""
+        plt.figure(figsize=(10, 6))
+        source_counts = self.df['source'].value_counts()
+        source_counts.plot(kind='bar')
+        plt.title('Incidents by Source')
+        plt.xlabel('Source')
+        plt.ylabel('Number of Incidents')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.savefig('images/source_distribution.svg')
+        plt.close()
+
+    def _plot_crime_types(self):
+        """Plot distribution of crime types"""
+        plt.figure(figsize=(12, 6))
+        crime_counts = self.df['crime_type'].value_counts().head(10)
+        crime_counts.plot(kind='bar')
+        plt.title('Top 10 Crime Types')
+        plt.xlabel('Crime Type')
+        plt.ylabel('Number of Incidents')
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.savefig('images/crime_types.svg')
+        plt.close()
+
+    def _print_recent_incidents(self):
+        """Print details of recent incidents"""
         recent = self.df.sort_values('date', ascending=False).head(5)
         for _, incident in recent.iterrows():
-            report.append(f"\n### {incident['crime_type']} on {incident['date'].strftime('%Y-%m-%d %H:%M')}")
-            report.append(f"- Location: {incident['location']}")
-            if incident['description']:
-                report.append(f"- Description: {incident['description']}")
-            report.append("")
-        
-        # Write report
-        with open(output_file, 'w') as f:
-            f.write('\n'.join(report))
-        print(f"\nReport saved to {output_file}")
+            print(f"\n### {incident['crime_type']} on {incident['date'].strftime('%Y-%m-%d %H:%M')}")
+            print(f"- Location: {incident['location']}")
+            if pd.notna(incident['description']):
+                print(f"- Description: {incident['description']}")
 
-def main():
-    try:
-        analyzer = CrimeAnalyzer()
-        
-        # Load all data (remove date filter)
-        analyzer.load_data()
-        
-        # Generate report
-        analyzer.generate_report()
-        
-    except Exception as e:
-        print(f"Error: {str(e)}")
-        import traceback
-        print(traceback.format_exc())
+async def main():
+    analyzer = CrimeAnalyzer()
+    await analyzer.load_data()
+    analyzer.generate_report()
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
