@@ -1,6 +1,6 @@
 # Crime Data Analysis Report
 
-Generated on: 2024-12-09 06:48:00
+Generated on: 2024-12-09 07:14:33
 
 ## Database Statistics
 
@@ -21,5 +21,5 @@ To: 2024-12-09 00:54:46.643248
 ```
         source                 last_fetch   status  records_count                 created_at                 updated_at
 0  test_source 2024-12-08 19:24:46.282984  success              2 2024-12-08 18:55:50.476939 2024-12-08 19:24:46.282986
-1      newsapi 2024-12-09 06:47:50.088112  success             65 2024-12-08 19:46:51.085641 2024-12-09 06:47:50.088113
+1      newsapi 2024-12-09 07:14:22.759390  success             65 2024-12-08 19:46:51.085641 2024-12-09 07:14:22.759391
 ```
