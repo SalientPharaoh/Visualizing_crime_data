@@ -1,15 +1,15 @@
 # Crime Data Analysis Report
 
-Generated on: 2024-12-09 09:41:00
+Generated on: 2024-12-09 09:49:39
 
 ## Database Statistics
 
-Total incidents: 235
+Total incidents: 236
 
 ### Incidents by Source
 
 - test_source: 2
-- newsapi: 233
+- newsapi: 234
 
 ### Date Range
 
@@ -21,5 +21,5 @@ To: 2024-12-09 00:54:46.643248
 ```
         source                 last_fetch   status  records_count                 created_at                 updated_at
 0  test_source 2024-12-08 19:24:46.282984  success              2 2024-12-08 18:55:50.476939 2024-12-08 19:24:46.282986
-1      newsapi 2024-12-09 09:40:50.712807  success             77 2024-12-08 19:46:51.085641 2024-12-09 09:40:50.712808
+1      newsapi 2024-12-09 09:49:28.131048  success             78 2024-12-08 19:46:51.085641 2024-12-09 09:49:28.131048
 ```
